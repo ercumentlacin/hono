@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { userSchema } from "./schemas";
+import { z } from 'zod';
+import { userSchema } from './schemas';
 
 export type User = z.infer<typeof userSchema>;
-export type UserCreate = Omit<User, "id">;
+export type UserCreate = Omit<User, 'id'>;

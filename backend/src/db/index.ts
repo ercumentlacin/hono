@@ -1,10 +1,7 @@
 import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
-import { sql } from './sql';
 
 sqlite3.verbose();
-
-type SqlParams = string | number | null;
 
 // function runQueries(db: sqlite3.Database) {
 //     db.all(`
@@ -53,27 +50,20 @@ type SqlParams = string | number | null;
 //     verbose: console.log
 // });
 
-export  const db = async () => {
-    return open({
-        filename: '../../mcu.db',
-        driver: sqlite3.Database
-    });
-}
-export  const createDbConnection = async () => {
-    return open({
-        filename: '../../mcu.db',
-        driver: sqlite3.Database
-    });
-}
-
-const quotes = (str: string) => `'${str.replace("'", "\\'")}'`
+export const db = async () => open({
+  filename: '../../mcu.db',
+  driver: sqlite3.Database,
+});
+export const createDbConnection = async () => open({
+  filename: '../../mcu.db',
+  driver: sqlite3.Database,
+});
 
 // const sql = (strings: TemplateStringsArray, ...values: SqlParams[]) => {
 //     return strings.reduce((prev, string, index) => {
 //         return `${prev}${string}${(values && values[index]) ?  quotes(values[index] as string) : ""}`
 //     }, "")
 //   };
-  
 
 // sql`CREATE TABLE IF NOT EXISTS users (
 //     id BLOB PRIMARY KEY NOT NULL,
@@ -81,4 +71,3 @@ const quotes = (str: string) => `'${str.replace("'", "\\'")}'`
 //     email TEXT NOT NULL,
 //     password TEXT NOT NULL
 // )`
-

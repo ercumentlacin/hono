@@ -1,3 +1,3 @@
 export type WithId<Type> = {
-    id: string
+  id: string
 } & Type;
