@@ -1,11 +1,10 @@
-/* eslint-disable no-extend-native */
 export class CustomHttpException extends Error {
-  constructor(public status: number, public message: string) {
+  constructor(
+    public message: string,
+    public status: number
+  ) {
     super(message);
-    this.status = status;
-    this.message = message;
-
+    this.name = "CustomHttpException";
     Error.captureStackTrace(this);
-    Error.prototype.name = 'CustomHttpException';
   }
 }

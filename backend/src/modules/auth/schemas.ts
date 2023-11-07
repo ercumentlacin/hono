@@ -1,22 +1,27 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-const createRequiredErrorMessage = (context: string) => `${context} is required`;
+export const authRegisterSchema = z.object({
+  username: z
+    .string({
+      required_error: "Username is required",
+    })
+    .min(1, "Username is required"),
 
-export const authSchemaRegister = z.object({
+  password: z
+    .string({
+      required_error: "Password is required",
+    })
+    .min(1, "Password is required"),
 
-  name: z.string({
-    required_error: createRequiredErrorMessage('Name'),
-  }),
-
-  email: z.string({
-    required_error: createRequiredErrorMessage('Email'),
-  })
-    .email('Please enter a valid email'),
-
-  password: z.string({
-    required_error: createRequiredErrorMessage('Password'),
-  }),
-
+  email: z
+    .string({
+      required_error: "Email is required",
+    })
+    .min(1, "Email is required")
+    .email("Email is invalid"),
 });
 
-export const authSchemaLogin = authSchemaRegister.omit({ name: true });
+export const authLoginSchema = authRegisterSchema.pick({
+    email: true,
+    password: true,
+})

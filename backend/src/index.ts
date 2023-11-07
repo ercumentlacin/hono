@@ -1,48 +1,53 @@
-import 'dotenv/config';
-import { serve } from '@hono/node-server';
-import { Hono } from 'hono';
-import { logger } from 'hono/logger';
-import { HTTPException } from 'hono/http-exception';
-import { userRoutes } from './routes/userRoutes';
-import { CustomHttpException } from './helpers/CustomHttpException';
-import { authRoutes } from './routes/authRoutes';
+import "@total-typescript/ts-reset";
+
+import "dotenv/config";
+import { serve } from "@hono/node-server";
+import { Hono } from "hono";
+import { logger } from "hono/logger";
+import { cors } from "hono/cors";
+import mongoose from "mongoose";
+import { ZodError } from "zod";
+import { CustomHttpException } from "./helpers/CustomHttpException";
+import { authRoutes } from "./modules/auth/route";
+import { animeRoutes } from "./modules/anime/route";
+
+if (!process.env.MONGO_URL) throw new Error("MONGO_URL not founded");
+
+mongoose
+  .connect(process.env.MONGO_URL)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error(err));
 
 const app = new Hono();
+app.use("/api/*", cors());
+app.use("*", logger());
 
-app.use('*', logger());
+app.route("/api/auth", authRoutes);
+app.route("/api/anime", animeRoutes);
 
-// app.get('/', async (c) => {
-//     const db = await createDbConnection()
-//     const asd = await db.get('SELECT * from hero')
-//     return c.text('Hello World2!')
-// })
-
-app.route('/auth', authRoutes);
-app.route('/users', userRoutes);
-
-app.notFound((c) => c.text('Custom 404 Message', 404));
+app.notFound((c) => c.text("Custom 404 Message", 404));
 
 app.onError((err, c) => {
   console.error({ err });
-  console.log('err.message', err.message);
+  console.log("err.message", err);
 
-  let message = 'something went wrong';
+  console.log("err instanceof ZodError", err instanceof ZodError);
+
+  let message = "something went wrong";
   let status = 500;
 
   if (err instanceof CustomHttpException) {
     message = err.message;
     status = err.status;
-  } else if (err instanceof HTTPException) {
-    message = err.message;
-    status = err.status;
-
-    if (!message && status === 401) message = 'Unauthorized';
   }
 
-  return c.json({
-    success: false,
-    message,
-  }, status);
+  return c.json(
+    {
+      success: false,
+      message,
+    },
+    status
+  );
 });
 
 serve(app);
