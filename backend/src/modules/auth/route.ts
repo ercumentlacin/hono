@@ -3,11 +3,14 @@ import { zValidator } from "@hono/zod-validator";
 import bcrypt from "bcrypt";
 import { sign } from "hono/jwt";
 import { StatusCodes } from "http-status-codes";
+import { deleteCookie, setCookie } from "hono/cookie";
 import { CustomHttpException } from "../../helpers/CustomHttpException";
 import { authLoginSchema, authRegisterSchema } from "./schemas";
 import { User } from "../user/model";
 
 export const authRoutes = new Hono();
+
+const tokenLifetime = 8 * 60 ** 2 * 1000;
 
 authRoutes.post(
   "register",
@@ -39,6 +42,11 @@ authRoutes.post(
 
     // eslint-disable-next-line
     const token = await sign({ id: user._id }, process.env.JWT_SECRET);
+
+    setCookie(c, "token", token, {
+      maxAge: tokenLifetime,
+      httpOnly: true,
+    });
 
     return c.json({ token }, 200);
   }
@@ -73,7 +81,25 @@ authRoutes.post(
     if (!process.env.JWT_SECRET)
       throw new Error("process.env.JWT_SECRET is required");
 
-    const token = sign({ id: user._id }, process.env.JWT_SECRET);
+    const token = await sign({ id: user._id }, process.env.JWT_SECRET);
+
+    const expirationDate = new Date(new Date().getTime() + tokenLifetime);
+
+    setCookie(c, "token", token, {
+      maxAge: tokenLifetime,
+      expires: expirationDate,
+      httpOnly: true,
+      path: "/",
+    });
+
     return c.json({ token }, 200);
   }
 );
+
+authRoutes.post("log-out", async (c) => {
+  deleteCookie(c, "token", {
+    path: "/",
+  });
+
+  return c.status(StatusCodes.NO_CONTENT);
+});
