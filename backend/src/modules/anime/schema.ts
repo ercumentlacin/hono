@@ -35,7 +35,7 @@ export const animeGetListSchema = z.object({
 });
 
 export const animeInsertSchema = z.object({
-  malId: z.number({
+  malId: z.coerce.number({
     required_error: "Anime Id is required",
   }),
   title: z.string({

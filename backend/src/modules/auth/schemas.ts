@@ -25,3 +25,12 @@ export const authLoginSchema = authRegisterSchema.pick({
     email: true,
     password: true,
 })
+
+export const ErrorSchema = z.object({
+  status: z.number().openapi({
+    example: 400,
+  }),
+  message: z.string().openapi({
+    example: 'Bad Request',
+  }),
+})

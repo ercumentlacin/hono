@@ -2,6 +2,7 @@
     "editor.formatOnSave": true,
     "explorer.compactFolders": false,
     "editor.codeActionsOnSave": {
-        "source.fixAll": true
+        "source.fixAll": true,
+        "source.organizeImports": true
     }
 }
