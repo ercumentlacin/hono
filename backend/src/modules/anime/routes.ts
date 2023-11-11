@@ -97,3 +97,50 @@ export const animeInsertRoute = createRoute({
     },
   },
 });
+
+export const animeSearchRoute = createRoute({
+  method: "get",
+  path: "/search",
+  tags: ["anime"],
+  description: "Search an anime",
+  parameters: [
+    {
+      name: "token",
+      in: "cookie",
+    },
+  ],
+  request: {
+    query: z.object({
+      query: z.string(),
+    }),
+  },
+  responses: {
+    [StatusCodes.OK]: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: z.string().uuid(),
+          }),
+        },
+      },
+      description: "Return inserted id",
+    },
+
+    [StatusCodes.GONE]: {
+      content: {
+        "application/json": {
+          schema: ErrorSchema,
+        },
+      },
+      description: "Anime list not found 79",
+    },
+    [StatusCodes.BAD_REQUEST]: {
+      content: {
+        "application/json": {
+          schema: ErrorSchema,
+        },
+      },
+      description: "Bad Request",
+    },
+  },
+});

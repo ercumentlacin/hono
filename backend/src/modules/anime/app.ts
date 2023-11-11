@@ -3,9 +3,10 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { StatusCodes } from "http-status-codes";
 import { CustomHttpException } from "../../helpers/CustomHttpException";
+import { searchAnimeOnMAL } from "../../services";
 import { authenticateToken } from "../../shared/middleware/auth";
 import { AnimeList } from "./model";
-import { animeInsertRoute, animeListRoute } from "./routes";
+import { animeInsertRoute, animeListRoute, animeSearchRoute } from "./routes";
 
 export const animeApp = new OpenAPIHono({
   defaultHook: (result) => {
@@ -56,4 +57,12 @@ animeApp.openapi(animeInsertRoute, async (c) => {
     },
     StatusCodes.CREATED
   );
+});
+
+animeApp.openapi(animeSearchRoute, async (c) => {
+  const { query } = c.req.query();
+
+  const results = await searchAnimeOnMAL(query);
+
+  return c.json({ data: results }, 200);
 });
