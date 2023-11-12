@@ -6,7 +6,12 @@ import { CustomHttpException } from "../../helpers/CustomHttpException";
 import { searchAnimeOnMAL } from "../../services";
 import { authenticateToken } from "../../shared/middleware/auth";
 import { AnimeList } from "./model";
-import { animeInsertRoute, animeListRoute, animeSearchRoute } from "./routes";
+import {
+  animeDeleteRoute,
+  animeInsertRoute,
+  animeListRoute,
+  animeSearchRoute,
+} from "./routes";
 
 export const animeApp = new OpenAPIHono({
   defaultHook: (result) => {
@@ -70,6 +75,29 @@ animeApp.openapi(animeInsertRoute, async (c) => {
     },
     StatusCodes.CREATED
   );
+});
+
+animeApp.openapi(animeDeleteRoute, async (c) => {
+  const { id: userId } = c.get("jwtPayload");
+  const { malId } = c.req.valid("json");
+
+  let animeList = await AnimeList.findOne({ user: userId });
+  if (!animeList) {
+    animeList = new AnimeList({ user: userId, animes: [] });
+  }
+
+  const animeExists = animeList.animes.find((anime) => anime.malId === malId);
+  if (!animeExists) {
+    throw new CustomHttpException("Anime not found", StatusCodes.GONE);
+  }
+
+  const excludedAnime = animeList.animes.filter(
+    (anime) => anime.malId !== malId
+  );
+  animeList.animes = excludedAnime;
+  await animeList.save();
+
+  return c.json({}, StatusCodes.NO_CONTENT);
 });
 
 animeApp.openapi(animeSearchRoute, async (c) => {

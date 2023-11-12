@@ -144,3 +144,53 @@ export const animeSearchRoute = createRoute({
     },
   },
 });
+
+export const animeDeleteRoute = createRoute({
+  method: "delete",
+  path: "/delete",
+  tags: ["anime"],
+  description: "Delete an anime on your list",
+  parameters: [
+    {
+      name: "token",
+      in: "cookie",
+    },
+  ],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: animeInsertSchema.pick({ malId: true }),
+        },
+      },
+    },
+  },
+  responses: {
+    [StatusCodes.NO_CONTENT]: {
+      content: {
+        "application/json": {
+          schema: z.object({}),
+        },
+      },
+      description: "Return no content",
+    },
+
+    [StatusCodes.GONE]: {
+      content: {
+        "application/json": {
+          schema: ErrorSchema,
+        },
+      },
+      description: "Anime list not found 79",
+    },
+
+    [StatusCodes.BAD_REQUEST]: {
+      content: {
+        "application/json": {
+          schema: ErrorSchema,
+        },
+      },
+      description: "Bad Request",
+    },
+  },
+});
