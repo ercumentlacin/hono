@@ -1,6 +1,6 @@
-import { z } from "zod";
-import { StatusCodes } from "http-status-codes";
 import { verify } from "hono/jwt";
+import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
 import { CustomHttpException } from "../../helpers/CustomHttpException";
 
 export const animeGetListSchema = z.object({
@@ -36,10 +36,12 @@ export const animeGetListSchema = z.object({
 
 export const animeInsertSchema = z.object({
   malId: z.coerce.number({
-    required_error: "Anime Id is required",
+    required_error: "malId is required",
   }),
   title: z.string({
-    required_error: "Title Id is required",
+    required_error: "title is required",
   }),
   imageUrl: z.string().optional().default("asd"),
+  lastCheckedEpisodeNumber: z.coerce.number().optional(),
+  lastCheckedEpisodeDate: z.coerce.date().optional(),
 });

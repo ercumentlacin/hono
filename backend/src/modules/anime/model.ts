@@ -5,6 +5,8 @@ export interface IAnime {
   malId: number; // MyAnimeList ID
   title: string;
   imageUrl: string;
+  lastCheckedEpisodeNumber: number;
+  lastCheckedEpisodeDate: Date;
 }
 
 export interface IAnimeList extends Document {
@@ -16,6 +18,8 @@ const animeSchema: Schema = new Schema({
   malId: { type: Number, required: true },
   title: { type: String, required: true },
   imageUrl: { type: String, required: true },
+  lastCheckedEpisodeNumber: { type: Number, required: true, default: 0 },
+  lastCheckedEpisodeDate: { type: Date, required: true, default: new Date(0) },
 });
 
 const animeListSchema: Schema = new Schema({

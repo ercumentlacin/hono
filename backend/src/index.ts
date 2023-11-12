@@ -1,8 +1,7 @@
-import "@total-typescript/ts-reset";
-
 import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import "@total-typescript/ts-reset";
 import "dotenv/config";
 import { compress } from "hono/compress";
 import { cors } from "hono/cors";
@@ -12,6 +11,8 @@ import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 import { ZodError } from "zod";
 import { CustomHttpException } from "./helpers/CustomHttpException";
+import "./helpers/animeUpdatesCron";
+import { checkForNewEpisodesAndNotify } from "./helpers/checkForNewEpisodesAndNotify";
 import { animeApp } from "./modules/anime/app";
 import { authApp } from "./modules/auth/app";
 
@@ -37,6 +38,8 @@ app.get(
 );
 app.route("/api/auth", authApp);
 app.route("/api/anime", animeApp);
+
+checkForNewEpisodesAndNotify();
 
 app.notFound((c) => c.text("Custom 404 Message", StatusCodes.NOT_FOUND));
 

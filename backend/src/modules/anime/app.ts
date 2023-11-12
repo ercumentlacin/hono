@@ -33,7 +33,13 @@ animeApp.openapi(animeListRoute, async (c) => {
 
 animeApp.openapi(animeInsertRoute, async (c) => {
   const { id: userId } = c.get("jwtPayload");
-  const { malId, title, imageUrl } = c.req.valid("json");
+  const {
+    malId,
+    title,
+    imageUrl,
+    lastCheckedEpisodeDate,
+    lastCheckedEpisodeNumber,
+  } = c.req.valid("json");
 
   let animeList = await AnimeList.findOne({ user: userId });
   if (!animeList) {
@@ -48,7 +54,14 @@ animeApp.openapi(animeInsertRoute, async (c) => {
     );
   }
 
-  animeList.animes.push({ malId, title, imageUrl });
+  animeList.animes.push({
+    malId,
+    title,
+    imageUrl,
+    lastCheckedEpisodeDate: lastCheckedEpisodeDate || new Date(),
+    lastCheckedEpisodeNumber: lastCheckedEpisodeNumber || 0,
+  });
+
   const { _id } = await animeList.save();
 
   return c.json(
