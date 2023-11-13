@@ -5,7 +5,9 @@
     "start": "tsx src/index.ts",
     "dev2": "node --experimental-specifier-resolution=node --loader ts-node/esm ./src/index.ts",
     "dev": "tsx watch src/index.ts",
-    "lint": "eslint src --ext .ts --fix"
+    "lint": "eslint src --ext .ts --fix",
+    "test": "vitest --watch",
+    "coverage": "vitest --run --coverage"
   },
   "dependencies": {
     "@hono/node-server": "^1.2.0",
@@ -36,12 +38,14 @@
     "@types/nodemailer": "^6.4.14",
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "^6.9.0",
+    "@vitest/coverage-v8": "^0.34.6",
     "eslint": "^8.52.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.1.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.29.0",
-    "tsx": "^3.14.0"
+    "tsx": "^3.14.0",
+    "vitest": "^0.34.6"
   },
   "ts-node": {
     "esm": true
