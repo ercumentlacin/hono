@@ -12,10 +12,12 @@ export const scrapeLatestEpisodeInfo = async (malId: number) => {
     const episodesPageUrl = $(
       "#horiznav_nav > ul:nth-child(1) > li:nth-child(3) > a:nth-child(1)"
     ).attr("href");
+
     if (!episodesPageUrl) throw new Error("episodesPageUrl not found");
 
     // 'Episodes' sayfasına gidin
     data = await axios.get(episodesPageUrl).then((response) => response.data);
+
     $ = cheerio.load(data);
 
     // Pagination'dan son sayfaya gitmek için URL'yi bulun

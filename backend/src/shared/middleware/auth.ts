@@ -8,23 +8,24 @@ export const authenticateToken = async <C extends Context>(
   c: C,
   next: Next
 ) => {
-  console.log("hi");
   const token = getCookie(c, "token");
 
   if (!token) {
     throw new CustomHttpException("Token not found", StatusCodes.UNAUTHORIZED);
   }
 
-  if (!process.env.JWT_SECRET)
-    throw new Error("process.env.JWT_SECRET is required");
-
+  if (!process.env.JWT_SECRET) {
+    throw new CustomHttpException(
+      "process.env.JWT_SECRET is required",
+      StatusCodes.SERVICE_UNAVAILABLE
+    );
+  }
+  
   const payload = await verify(token, process.env.JWT_SECRET);
+  console.log({ token, "process.env.JWT_SECRET": process.env.JWT_SECRET });
 
   if (!payload) {
-    throw new CustomHttpException(
-      "Token is invalid found",
-      StatusCodes.UNAUTHORIZED
-    );
+    throw new CustomHttpException("Token is invalid", StatusCodes.UNAUTHORIZED);
   }
 
   c.set("jwtPayload", payload);

@@ -16,10 +16,16 @@ import { checkForNewEpisodesAndNotify } from "./helpers/checkForNewEpisodesAndNo
 import { animeApp } from "./modules/anime/app";
 import { authApp } from "./modules/auth/app";
 
-if (!process.env.MONGO_URL) throw new Error("MONGO_URL not founded");
+if (!process.env.MONGO_URL || !process.env.TEST_MONGODB_URL)
+  throw new Error("MONGO_URL not founded");
+
+const isTestingEnv = process.env.NODE_ENV === "testing";
+const dbUri = isTestingEnv
+  ? process.env.TEST_MONGODB_URL
+  : process.env.MONGO_URL;
 
 mongoose
-  .connect(process.env.MONGO_URL)
+  .connect(dbUri)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error(err));
 
