@@ -80,4 +80,6 @@ app.doc("/doc", {
   openapi: "3.1.0",
 });
 
+app.showRoutes();
+
 serve(app);
