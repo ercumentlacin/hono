@@ -15,6 +15,7 @@ import "./helpers/animeUpdatesCron";
 import { checkForNewEpisodesAndNotify } from "./helpers/checkForNewEpisodesAndNotify";
 import { animeApp } from "./modules/anime/app";
 import { authApp } from "./modules/auth/app";
+import { seasonApp } from "./modules/season/app";
 
 if (!process.env.MONGO_URL || !process.env.TEST_MONGODB_URL)
   throw new Error("MONGO_URL not founded");
@@ -44,6 +45,7 @@ app.get(
 );
 app.route("/api/auth", authApp);
 app.route("/api/anime", animeApp);
+app.route("/api/season", seasonApp);
 
 checkForNewEpisodesAndNotify();
 

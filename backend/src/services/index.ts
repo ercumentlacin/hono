@@ -1,6 +1,15 @@
 import axios from "axios";
 import cheerio from "cheerio";
 
+interface Season {
+  malId: string | undefined;
+  title: string;
+  imageUrl: string | undefined;
+  createdDate: string;
+  episodesAndDuration: string;
+  preLine: string;
+}
+
 export const searchAnimeOnMAL = async (animeName: string) => {
   try {
     const response = await axios.get(
@@ -26,6 +35,62 @@ export const searchAnimeOnMAL = async (animeName: string) => {
     });
 
     return searchResults;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+export const searchSeasonOnMAL = async () => {
+  try {
+    const response = await axios.get("https://myanimelist.net/anime/season");
+    const html = response.data;
+    const $ = cheerio.load(html);
+
+    const animeList: Season[] = [];
+
+    $(".seasonal-anime").each((index, element) => {
+      const genres: string[] = [];
+      const title = $(element).find(".h2_anime_title a").text().trim();
+      const imageUrl = $(element).find(".image img").attr("src");
+      const malId = $(element)
+        .find(".h2_anime_title a")
+        ?.attr("href")
+        ?.match(/anime\/(\d+)/)?.[1];
+
+      const createdDate = $(element)
+        .find(".prodsrc .info .item:nth-child(1)")
+        .text()
+        .trim();
+      const episodesAndDuration = $(element)
+        .find(".prodsrc .info .item:nth-child(2)")
+        .text()
+        .trim()
+        .replace("\n          ", "");
+
+      $(element)
+        .find(".genre")
+        .each((genreIndex, genreElement) => {
+          const genre = $(genreElement).find("a").text().trim();
+
+          genres.push(genre);
+        });
+
+      const preLine = $(element).find(".preline").text().trim();
+
+      const anime = {
+        malId,
+        title,
+        imageUrl,
+        createdDate,
+        episodesAndDuration,
+        preLine,
+        genres,
+      };
+      animeList.push(anime);
+    });
+
+    return animeList;
   } catch (error) {
     console.error(error);
     return [];
