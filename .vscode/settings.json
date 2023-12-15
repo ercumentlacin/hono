@@ -1,8 +1,8 @@
 {
-    "editor.formatOnSave": true,
-    "explorer.compactFolders": false,
-    "editor.codeActionsOnSave": {
-        "source.fixAll": true,
-        "source.organizeImports": true
-    }
+  "editor.formatOnSave": true,
+  "explorer.compactFolders": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  }
 }

@@ -43,9 +43,13 @@ authApp.openapi(registerRoute, async (c) => {
   // eslint-disable-next-line
   const token = await sign({ id: user._id }, process.env.JWT_SECRET);
 
+  const nowUnixMs = Date.now();
+  const expiresAt = new Date(nowUnixMs + 50 * 1000 * 60 * 60); // Expires: Now + 50 hours
   setCookie(c, "token", token, {
-    maxAge: tokenLifetime,
+    path: "/", // if omitted, set to /. If set to anything other than /, then throw an error.
     httpOnly: true,
+    sameSite: "Strict",
+    secure: true,
   });
 
   return c.json({ token }, 200);
@@ -74,11 +78,14 @@ authApp.openapi(loginRoute, async (c) => {
 
   const expirationDate = new Date(new Date().getTime() + tokenLifetime);
 
+  const nowUnixMs = Date.now();
+  const expiresAt = new Date(nowUnixMs + 50 * 1000 * 60 * 60); // Expires: Now + 50 hours
+
   setCookie(c, "token", token, {
-    maxAge: tokenLifetime,
-    expires: expirationDate,
+    path: "/", // if omitted, set to /. If set to anything other than /, then throw an error.
     httpOnly: true,
-    path: "/",
+    sameSite: "Strict",
+    secure: true,
   });
 
   return c.json({ token }, 200);
@@ -88,5 +95,5 @@ authApp.openapi(logoutRoute, async (c) => {
   deleteCookie(c, "token", {
     path: "/",
   });
-  return c.json({}, StatusCodes.NO_CONTENT)
+  return c.json({}, StatusCodes.NO_CONTENT);
 });

@@ -52,7 +52,8 @@ export const searchSeasonOnMAL = async () => {
     $(".seasonal-anime").each((index, element) => {
       const genres: string[] = [];
       const title = $(element).find(".h2_anime_title a").text().trim();
-      const imageUrl = $(element).find(".image img").attr("src");
+      const imageEl = $(element).find(".image img");
+      const imageUrl = imageEl.attr("src") ?? imageEl.attr("data-src");
       const malId = $(element)
         .find(".h2_anime_title a")
         ?.attr("href")
