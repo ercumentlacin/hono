@@ -6,6 +6,7 @@ import "dotenv/config";
 import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { prettyJSON } from 'hono/pretty-json';
 import { secureHeaders } from "hono/secure-headers";
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
@@ -32,6 +33,7 @@ mongoose
 
 const app = new OpenAPIHono();
 
+app.use('*', prettyJSON())
 app.use("/api/*", cors());
 app.use("*", logger());
 app.use("*", compress());
@@ -53,7 +55,7 @@ app.notFound((c) => c.text("Custom 404 Message", StatusCodes.NOT_FOUND));
 
 app.onError((err, c) => {
   console.error({ err });
-  console.log("err.message", err);
+  // console.log("err.message", err);
 
   console.log("err instanceof ZodError", err instanceof ZodError);
 
@@ -85,3 +87,5 @@ app.doc("/doc", {
 app.showRoutes();
 
 serve(app);
+
+export { app };

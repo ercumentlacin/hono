@@ -1,94 +1,45 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
-import bcrypt from "bcrypt";
 import { deleteCookie, setCookie } from "hono/cookie";
-import { sign } from "hono/jwt";
 import { StatusCodes } from "http-status-codes";
-import { CustomHttpException } from "../../helpers/CustomHttpException";
-import { User } from "../user/model";
+import { defaultHook, handleLogin, handleRegister } from "./handlers";
 import { loginRoute, logoutRoute, registerRoute } from "./routes";
 
 export const authApp = new OpenAPIHono({
-  defaultHook: (result) => {
-    if (!result.success && result.error.issues.length > 0) {
-      throw new CustomHttpException(result.error.issues[0].message, 400);
-    }
-  },
+  defaultHook,
 });
-
-const tokenLifetime = 8 * 60 ** 2 * 1000;
 
 authApp.openapi(registerRoute, async (c) => {
   const { email, password, username } = c.req.valid("form");
 
-  const userExists = await User.findOne({
-    $or: [{ email }, { username }],
-  });
-  if (userExists) {
-    throw new CustomHttpException("User already exist", 409);
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 12);
-
-  const user = new User({
-    username,
+  const { token } = await handleRegister({
     email,
-    password: hashedPassword,
+    password,
+    username,
   });
 
-  await user.save();
-
-  if (!process.env.JWT_SECRET)
-    throw new Error("process.env.JWT_SECRET is required");
-
-  // eslint-disable-next-line
-  const token = await sign({ id: user._id }, process.env.JWT_SECRET);
-
-  const nowUnixMs = Date.now();
-  const expiresAt = new Date(nowUnixMs + 50 * 1000 * 60 * 60); // Expires: Now + 50 hours
   setCookie(c, "token", token, {
-    path: "/", // if omitted, set to /. If set to anything other than /, then throw an error.
+    path: "/",
     httpOnly: true,
     sameSite: "Strict",
     secure: true,
   });
 
-  return c.json({ token }, 200);
+  return c.json({ token }, StatusCodes.CREATED);
 });
 
 authApp.openapi(loginRoute, async (c) => {
   const { email, password } = c.req.valid("form");
 
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw new CustomHttpException("User does not exist", StatusCodes.GONE);
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new CustomHttpException(
-      "Invalid credentials",
-      StatusCodes.UNAUTHORIZED
-    );
-  }
-
-  if (!process.env.JWT_SECRET)
-    throw new Error("process.env.JWT_SECRET is required");
-
-  const token = await sign({ id: user._id }, process.env.JWT_SECRET);
-
-  const expirationDate = new Date(new Date().getTime() + tokenLifetime);
-
-  const nowUnixMs = Date.now();
-  const expiresAt = new Date(nowUnixMs + 50 * 1000 * 60 * 60); // Expires: Now + 50 hours
+  const { token } = await handleLogin({ email, password });
 
   setCookie(c, "token", token, {
-    path: "/", // if omitted, set to /. If set to anything other than /, then throw an error.
+    path: "/",
     httpOnly: true,
     sameSite: "Strict",
     secure: true,
   });
 
-  return c.json({ token }, 200);
+  return c.json({ token }, StatusCodes.OK);
 });
 
 authApp.openapi(logoutRoute, async (c) => {
