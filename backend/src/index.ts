@@ -9,27 +9,15 @@ import { logger } from "hono/logger";
 import { prettyJSON } from 'hono/pretty-json';
 import { secureHeaders } from "hono/secure-headers";
 import { StatusCodes } from "http-status-codes";
-import mongoose from "mongoose";
-import { ZodError } from "zod";
 import { CustomHttpException } from "./helpers/CustomHttpException";
 import "./helpers/animeUpdatesCron";
 import { checkForNewEpisodesAndNotify } from "./helpers/checkForNewEpisodesAndNotify";
+import { connectToDatabase } from "./helpers/database";
 import { animeApp } from "./modules/anime/app";
 import { authApp } from "./modules/auth/app";
 import { seasonApp } from "./modules/season/app";
 
-if (!process.env.MONGO_URL || !process.env.TEST_MONGODB_URL)
-  throw new Error("MONGO_URL not founded");
-
-const isTestingEnv = process.env.NODE_ENV === "testing";
-const dbUri = isTestingEnv
-  ? process.env.TEST_MONGODB_URL
-  : process.env.MONGO_URL;
-
-mongoose
-  .connect(dbUri)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error(err));
+connectToDatabase();
 
 const app = new OpenAPIHono();
 
@@ -54,10 +42,15 @@ checkForNewEpisodesAndNotify();
 app.notFound((c) => c.text("Custom 404 Message", StatusCodes.NOT_FOUND));
 
 app.onError((err, c) => {
-  console.error({ err });
-  // console.log("err.message", err);
+  if (
+    process.env.NODE_ENV !== "test" &&
+    process.env.NODE_ENV !== "production"
+  ) {
+    console.error({ err });
+  }
 
-  console.log("err instanceof ZodError", err instanceof ZodError);
+  console.error({ err });
+
 
   let message = "something went wrong";
   let status = 500;

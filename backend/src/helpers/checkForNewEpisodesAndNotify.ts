@@ -15,7 +15,7 @@ export const checkForNewEpisodesAndNotify = async () => {
     for (const anime of animeList.animes) {
       const isNewEpisodeAvailable = await checkNewEpisode(anime);
       if (isNewEpisodeAvailable) {
-        await checkAndSendEmail(user, anime);
+        await checkAndSendEmail({ user, anime });
       }
     }
   }

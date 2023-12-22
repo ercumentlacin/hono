@@ -19,7 +19,7 @@ export const sendEmailToUser = async (
   });
 
   const htmlContent = await fs.readFile(
-    path.join("/workspaces/hono/backend/src/public/email.html"),
+    path.join("../public/email.html"),
     {
       encoding: "utf8",
     }
