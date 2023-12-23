@@ -1,9 +1,10 @@
-import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
+import mongoose from "mongoose";
 
 let mongod: MongoMemoryServer;
 
 export const connectToDatabase = async () => {
+  console.log("steins gate", process.env.MONGO_URL);
   try {
     if (!process.env.MONGO_URL) {
       throw new Error("MONGO_URL not founded");
@@ -17,17 +18,16 @@ export const connectToDatabase = async () => {
       dbUrl = mongod.getUri();
     }
 
-    const { connections }  = mongoose;
+    const { connections } = mongoose;
 
     if (connections[0].readyState) return;
 
     const connection = await mongoose.connect(dbUrl);
 
     console.log(`MongoDB connected: ${connection.connection.host}`);
-  } catch (err) {
-    console.log("connectToDatabase error",err);
-
-    process.exit(1);
+  } catch (err: any) {
+    console.log("connectToDatabase error", err);
+    throw new Error(err?.message);
   }
 };
 
@@ -39,6 +39,5 @@ export const disconnectDatabase = async () => {
     }
   } catch (err) {
     console.log(err);
-    process.exit(1);
   }
 };

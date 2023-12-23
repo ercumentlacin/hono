@@ -25,7 +25,6 @@ animeApp.use("*", authenticateToken);
 
 animeApp.openapi(animeListRoute, async (c) => {
   const { id: userId } = c.get("jwtPayload");
-  console.log({ userId });
   const animeList = await AnimeList.findOne({ user: userId });
 
   if (!animeList) {

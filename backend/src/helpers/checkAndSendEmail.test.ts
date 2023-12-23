@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import { Mock, describe, expect, it, vi } from "vitest";
+import { AnimeList } from "../modules/anime/model";
+import EmailLog from "../modules/email/model";
 import {
+  checkAndSendEmail,
   checkLogExistOnEmail,
   findAnimeByMalId,
   findLatestEpisodeNumber,
 } from "./checkAndSendEmail";
-import { AnimeList } from "../modules/anime/model";
-import EmailLog from "../modules/email/model";
 
 describe("checkAndSendEmail", () => {
   describe("findAnimeByMalId", () => {
@@ -106,5 +108,47 @@ describe("checkAndSendEmail", () => {
     });
   });
 
-  describe('checkAndSendEmail', () => {  })
+  describe("checkAndSendEmail", () => {
+    it("should send email if emailLog not founded", () => {
+      const user = {
+        _id: "1",
+        email: "test@mail.com",
+      } as any;
+
+      const anime = {
+        malId: 1,
+        lastCheckedEpisodeNumber: 1,
+      } as any;
+
+      const findAnimeByMalId = vi.fn(() => ({
+        animes: [
+          {
+            imageUrl: "https://cdn.myanimelist.net/images/anime/10/78745.jpg",
+            malId: 1,
+            title: "Shingeki no Kyojin",
+            _id: "60f0b1b9c9b7a4b4e8f1b3b1",
+            lastCheckedEpisodeDate: "2021-07-16T15:00:00.000Z",
+            lastCheckedEpisodeNumber: 1,
+          },
+        ],
+      })) as any;
+
+      const sendEmailToUser = vi.fn();
+
+      const findLatestEpisodeNumber = vi.fn(() => 1);
+
+      const checkLogExistOnEmail = vi.fn(() => null) as any;
+
+      checkAndSendEmail({
+        user,
+        anime,
+        _findAnimeByMalId: findAnimeByMalId,
+        _sendEmailToUser: sendEmailToUser,
+        _findLatestEpisodeNumber: findLatestEpisodeNumber,
+        _checkLogExistOnEmail: checkLogExistOnEmail,
+      });
+
+      expect(findAnimeByMalId).toBeCalledWith({ malId: 1 });
+    });
+  });
 });

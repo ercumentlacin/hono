@@ -59,23 +59,25 @@ export const checkAndSendEmail = async ({
   anime,
   _findAnimeByMalId = findAnimeByMalId,
   _sendEmailToUser = sendEmailToUser,
+  _findLatestEpisodeNumber = findLatestEpisodeNumber,
+  _checkLogExistOnEmail = checkLogExistOnEmail,
 }: {
   user: IUser;
   anime: IAnime;
   _findAnimeByMalId?: typeof findAnimeByMalId;
   _sendEmailToUser?: typeof sendEmailToUser;
+  _findLatestEpisodeNumber?: typeof findLatestEpisodeNumber;
+  _checkLogExistOnEmail?: typeof checkLogExistOnEmail;
 }) => {
   const animeList = await _findAnimeByMalId({ malId: anime.malId });
 
-  const latestEpisodeNumber = findLatestEpisodeNumber({
+  const latestEpisodeNumber = _findLatestEpisodeNumber({
     animeList,
     malId: anime.malId,
     lastCheckedEpisodeNumber: anime.lastCheckedEpisodeNumber,
   });
 
-  console.log({ latestEpisodeNumber });
-
-  const emailLogExists = await checkLogExistOnEmail({
+  const emailLogExists = await _checkLogExistOnEmail({
     userId: user._id,
     animeId: anime.malId,
     episodeNumber: latestEpisodeNumber,
